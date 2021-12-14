@@ -4,6 +4,11 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] GameManager gameManager;
     [SerializeField] LayerMask blockLayer;
+    public GameObject crossedPrefab;
+    public Transform shotPoint;
+    public bool isLeft;
+    float coolTime = 0.3f;
+    float coolTimeCounter;
     public enum DIRECTION_TYPE
     {
         STOP,
@@ -31,6 +36,8 @@ public class PlayerManager : MonoBehaviour
         rd = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        isLeft = false;
+        coolTimeCounter = 0;
     }
 
     public void Update()
@@ -39,12 +46,33 @@ public class PlayerManager : MonoBehaviour
         {
             Attack();
         }
+        coolTimeCounter -= Time.deltaTime;
+        if (coolTimeCounter <= 0)
+        {
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                Shot();
+            }
+        }
         Movement();
     }
 
     public void Attack()
     {
         animator.SetTrigger("IsAttack");
+    }
+
+    public void Shot()
+    {
+        if (isLeft)
+        {
+            Instantiate(crossedPrefab, shotPoint.position, transform.rotation).transform.Rotate(0f, 180f, 0f);
+        }
+        else
+        {
+            Instantiate(crossedPrefab, shotPoint.position, transform.rotation);
+        }
+        coolTimeCounter = coolTime;
     }
 
     public void Movement()
@@ -63,10 +91,12 @@ public class PlayerManager : MonoBehaviour
         else if (x > 0)
         {
             direction = DIRECTION_TYPE.RIGHT;
+            isLeft = false;
         }
         else if (x < 0)
         {
             direction = DIRECTION_TYPE.LEFT;
+            isLeft = true;
         }
         if (IsGround())
         {
