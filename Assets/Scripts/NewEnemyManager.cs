@@ -16,7 +16,8 @@ public class NewEnemyManager : MonoBehaviour
         hp -= damage;
         if (hp <= 0)
         {
-            Die();
+            animator.SetTrigger("Die");
+            Invoke("Die", 0.5f);
         }
     }
     void Die()
